@@ -1,0 +1,45 @@
+name: 'Wait for message or send message'
+description: 'Runs the wait-for-message Python utility (https://pypi.org/project/wait-for-message/)'
+inputs:
+  command:
+    description: 'The command to execute; wait or send'
+    required: True
+  ip:
+    description: 'For send; the IP address of the server'
+    required: false
+  port:
+    description: 'For send; the TCP port number the server. For wait; the TCP port number to listen on'
+    required: true
+  message:
+    description: 'For send; the message to send. For wait; the message to wait for'
+    required: true
+  delay:
+    description: 'For send; the number of seconds to delay between retries'
+    required: false
+    default: 10
+  attempts:
+    description: 'For send; the maximum retry attempts'
+    required: false
+    default: 60
+  timeout:
+    description: 'For wait; the number of seconds to wait for message'
+    required: false
+    default: 900
+  shell:
+    description: 'The shell to use'
+    required: false
+    default: bash
+runs:
+  using: "composite"
+  steps:
+    - name: Install wait-for-message
+      shell: ${{ inputs.shell }}
+      run: pip3 install --upgrade wait-for-message
+    - name: Send message
+      if: ${{ inputs.command == 'send' }}
+      shell: ${{ inputs.shell }}
+      run: w4m send --ip-address=${{ inputs.ip }} --port-number=${{ inputs.port }} --message="${{ inputs.message }}" --delay=${{ inputs.delay }} --attempts=${{ inputs.attempts }}
+    - name: Wait for message
+      if: ${{ inputs.command == 'wait' }}
+      shell: ${{ inputs.shell }}
+      run: w4m wait --port-number=${{ inputs.port }} --message="${{ inputs.message }}" --timeout=${{ inputs.timeout }}
