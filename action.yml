@@ -25,6 +25,10 @@ inputs:
     description: 'For wait; the number of seconds to wait for message'
     required: false
     default: 900
+  use_container:
+    description: 'Use Docker container for execution'
+    required: false
+    default: false
   shell:
     description: 'The shell to use'
     required: false
@@ -33,13 +37,14 @@ runs:
   using: "composite"
   steps:
     - name: Install wait-for-message
+      if: ${{ inputs.use_container == 'false' }}
       shell: ${{ inputs.shell }}
       run: pip3 install --upgrade wait-for-message
     - name: Send message
-      if: ${{ inputs.command == 'send' }}
+      if: ${{ inputs.command == 'send' && inputs.use_container == 'false' }}
       shell: ${{ inputs.shell }}
       run: w4m send --ip-address=${{ inputs.ip }} --port-number=${{ inputs.port }} --message="${{ inputs.message }}" --delay=${{ inputs.delay }} --attempts=${{ inputs.attempts }}
     - name: Wait for message
-      if: ${{ inputs.command == 'wait' }}
+      if: ${{ inputs.command == 'wait' && inputs.use_container == 'false' }}
       shell: ${{ inputs.shell }}
       run: w4m wait --port-number=${{ inputs.port }} --message="${{ inputs.message }}" --timeout=${{ inputs.timeout }}
