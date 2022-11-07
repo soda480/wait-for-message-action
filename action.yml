@@ -36,15 +36,31 @@ inputs:
 runs:
   using: "composite"
   steps:
+
     - name: Install wait-for-message
       if: ${{ inputs.use_container == 'false' }}
       shell: ${{ inputs.shell }}
       run: pip3 install --upgrade wait-for-message
+
     - name: Send message
       if: ${{ inputs.command == 'send' && inputs.use_container == 'false' }}
       shell: ${{ inputs.shell }}
       run: w4m send --ip-address=${{ inputs.ip }} --port-number=${{ inputs.port }} --message="${{ inputs.message }}" --delay=${{ inputs.delay }} --attempts=${{ inputs.attempts }}
+
     - name: Wait for message
       if: ${{ inputs.command == 'wait' && inputs.use_container == 'false' }}
       shell: ${{ inputs.shell }}
       run: w4m wait --port-number=${{ inputs.port }} --message="${{ inputs.message }}" --timeout=${{ inputs.timeout }}
+
+    - name: Run using Docker container
+      if: ${{ inputs.use_container == 'true' }}
+      shell: bash
+      run: ${{ github.action_path }}/run.sh
+      env:
+        W4M_COMMAND: ${{ inputs.command }}
+        W4M_IP: ${{ inputs.ip }}
+        W4M_PORT: ${{ inputs.port }}
+        W4M_MESSAGE: ${{ inputs.message }}
+        W4M_DELAY: ${{ inputs.delay }}
+        W4M_ATTEMPTS: ${{ inputs.attempts }}
+        W4M_TIMEOUT: ${{ inputs.timeout }}
