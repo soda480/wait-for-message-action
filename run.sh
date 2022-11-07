@@ -1,7 +1,7 @@
 #!/bin/sh
 set -x
 run() {
-    IMAGE="w4mgha:latest"
+    IMAGE="soda480/wait-for-message:latest"
     echo "running Docker container: $IMAGE"
     if [ ! -z \"$W4M_PORT\" ]
     then
