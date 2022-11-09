@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # set -x
 run() {
     IMAGE="soda480/wait-for-message:latest"
@@ -9,7 +9,7 @@ run() {
     echo "running Docker container: $IMAGE"
     if [ "$W4M_COMMAND" = "wait" ]; then
         echo "publish ports: $W4M_PORT"
-        docker container run \
+        value=$( docker container run \
             --rm \
             -e http_proxy \
             -e https_proxy \
@@ -21,7 +21,8 @@ run() {
             -e W4M_ATTEMPTS \
             -e W4M_TIMEOUT \
             -p $W4M_PORT:$W4M_PORT \
-            "$IMAGE"
+            "$IMAGE")
+        echo "response=$value" >> $GITHUB_OUTPUT   
     else
         docker container run \
             --rm \

@@ -33,6 +33,16 @@ inputs:
     description: 'The shell to use'
     required: false
     default: bash
+outputs:
+  response_linux:
+    description: "Wait Response for Linux"
+    value: ${{ steps.response_linux.outputs.response }}
+  response_windows:
+    description: "Wait Response for Windows"
+    value: ${{ steps.response_windows.outputs.response }}
+  response_container:
+    description: "Wait Response for Container"
+    value: ${{ steps.response_container.outputs.response }}
 runs:
   using: "composite"
   steps:
@@ -49,16 +59,28 @@ runs:
       run: |
         w4m send --ip-address=${{ inputs.ip }} --port-number=${{ inputs.port }} --message="${{ inputs.message }}" --delay=${{ inputs.delay }} --attempts=${{ inputs.attempts }}
 
-    - name: Wait for message
-      if: ${{ inputs.command == 'wait' && inputs.use_container == 'false' }}
-      shell: ${{ inputs.shell }}
+    - name: Wait for message for Linux
+      if: ${{ runner.os == 'Linux' && inputs.command == 'wait' && inputs.use_container == 'false' }}
+      id: response_linux
+      shell: bash
       run: |
-        w4m wait --port-number=${{ inputs.port }} --message="${{ inputs.message }}" --timeout=${{ inputs.timeout }}
-
+        value=$( w4m wait --port-number=${{ inputs.port }} --message="${{ inputs.message }}" --timeout=${{ inputs.timeout }} )
+        echo "response=$value" >> $GITHUB_OUTPUT
+    
+    - name: Wait for message for Windows
+      if: ${{ runner.os == 'Windows' && inputs.command == 'wait' && inputs.use_container == 'false' }}
+      id: response_windows
+      shell: powershell
+      run: |
+        $value=( w4m wait --port-number=${{ inputs.port }} --message="${{ inputs.message }}" --timeout=${{ inputs.timeout }} )
+        Write-Output "response=$value" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
+        
     - name: Run using Docker container
       if: ${{ inputs.use_container == 'true' }}
+      id: response_container
       shell: bash
-      run: ${{ github.action_path }}/run.sh
+      run: |
+        ${{ github.action_path }}/run.sh
       env:
         W4M_COMMAND: ${{ inputs.command }}
         W4M_IP: ${{ inputs.ip }}
