@@ -1,4 +1,4 @@
-# GitHub Action: wait-for-message
+# wait-for-message-action
 
 A GitHub Action that runs the [wait-for-message](https://pypi.org/project/wait-for-message/) Python utility. A simple client server utility that blocks until a message is sent/received on a TCP/IP socket connection. This action is useful for synchronizing interdependent networked jobs.
 
@@ -16,14 +16,12 @@ Send a message to the ip address and port via a tcp socket connection, if no ack
 
 |     Capability | Compatible | Note                |
 | -------------: | :--------: | --------------------- |
-|   Docker Linux |     ✅     | Requires Docker       |
-|   Native Linux |     ✅     | Requires Python > 3.7 |
-| Docker Windows |     ❌     | Non Supported         |
-| Native Windows |     ✅     | Requires Python > 3.7 |
+|   Docker Linux |     yes     | Requires Docker       |
+|   Native Linux |     yes     | Requires Python > 3.7 |
+| Docker Windows |     no     | Non Supported         |
+| Native Windows |     yes     | Requires Python > 3.7 |
 
 ## Inputs
-
-<!-- start inputs -->
 
 | **Input**                      | **Description**                                                                          | **Default** | **Required** |
 | ------------------------------ | ---------------------------------------------------------------------------------------- | ----------- | ------------ |
@@ -37,7 +35,6 @@ Send a message to the ip address and port via a tcp socket connection, if no ack
 | **<code>use_container</code>** | Use Docker container for execution                                                       | false       | **false**    |
 | **<code>shell</code>**         | The shell to use                                                                         | bash        | **false**    |
 
-<!-- end inputs -->
 
 ## Usage
 
