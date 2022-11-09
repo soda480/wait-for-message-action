@@ -1,7 +1,6 @@
 #!/bin/bash
-set -x
-env | grep INPUT
-env | grep W4M
+# set -x
+# env | grep W4M
 if [[ "$W4M_COMMAND" = "wait" ]]
 then
     w4m wait --port-number=$W4M_PORT --message="$W4M_MESSAGE" --timeout=$W4M_TIMEOUT
