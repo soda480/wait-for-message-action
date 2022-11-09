@@ -1,0 +1,16 @@
+name: Test Container Wait
+on: workflow_dispatch
+jobs:
+  test:
+    runs-on: Linux
+    steps:
+    - name: Wait for a Message
+      uses: soda480/wait-for-message-action
+      with:
+        command: "wait"
+        port: 8080
+        message: "ready to proceed"
+        timeout: 60
+        use_container: true
+    - name: Continue
+      run: echo "Continue running..."

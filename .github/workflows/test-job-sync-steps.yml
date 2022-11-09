@@ -1,0 +1,88 @@
+name: Test Jobs Sync within Steps
+on: workflow_dispatch
+jobs:
+
+  get_windows_ip:
+    name: Get Windows IP
+    runs-on: Windows
+    outputs:
+      windows_ip: ${{ steps.get_ip.outputs.windows_ip }}
+    steps:
+    - name: Get Windows IP
+      id: get_ip
+      shell: powershell
+      run: |
+        $IP = (Get-NetIPConfiguration | Where-Object { $_.IPv4DefaultGateway -ne $null -and $_.NetAdapter.Status -ne "Disconnected" }).IPv4Address.IPAddress
+        Write-Output "windows_ip=$IP" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+  get_linux_ip:
+    name: Get Linux IP
+    runs-on: Linux
+    outputs:
+      linux_ip: ${{ steps.get_ip.outputs.linux_ip }}
+    steps:
+    - name: Get Linux IP
+      id: get_ip
+      run: |
+        value=$( hostname -I | awk {'print $1'} )
+        echo $value
+        echo "linux_ip=$value" >> $GITHUB_OUTPUT
+
+  windows_workflow:
+    name: Windows Workflow
+    runs-on: Windows
+    needs: get_linux_ip
+    steps:
+    - name: Wait for Linux server to be ready
+      uses: soda480/wait-for-message-action
+      with:
+        command: "wait"
+        port: 8080
+        timeout: 120
+        message: "Linux server is ready"
+        shell: cmd
+    - name: Install App Task
+      run: Start-Sleep -s 30
+      shell: powershell
+    - name: Send Windows server is ready message
+      uses: soda480/wait-for-message-action
+      with:
+        command: "send"
+        ip: ${{ needs.get_linux_ip.outputs.linux_ip }}
+        port: 8080
+        delay: 5
+        attempts: 12
+        message: "Windows server is ready"
+        shell: cmd
+
+  linux_workflow:
+    name: Linux Workflow
+    runs-on: Linux
+    needs: get_windows_ip
+    steps:
+    - name: Build App Task
+      run: sleep 60
+      shell: bash
+    - name: Send Linux server is ready message
+      uses: soda480/wait-for-message-action
+      with:
+        command: "send"
+        ip: ${{ needs.get_windows_ip.outputs.windows_ip }}
+        port: 8080
+        delay: 10
+        attempts: 10
+        message: "Linux server is ready"
+        shell: bash
+        use_container: true
+    - name: Wait for Windows server to be ready message
+      uses: soda480/wait-for-message-action
+      with:
+        command: "wait"
+        port: 8080
+        timeout: 120
+        message: "Windows server is ready"
+        shell: bash
+        use_container: true
+    - name: Run Tests Task
+      run: sleep 10
+      shell: bash

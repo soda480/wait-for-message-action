@@ -40,17 +40,20 @@ runs:
     - name: Install wait-for-message
       if: ${{ inputs.use_container == 'false' }}
       shell: ${{ inputs.shell }}
-      run: pip3 install --upgrade wait-for-message
+      run: |
+        pip3 install --upgrade wait-for-message
 
     - name: Send message
       if: ${{ inputs.command == 'send' && inputs.use_container == 'false' }}
       shell: ${{ inputs.shell }}
-      run: w4m send --ip-address=${{ inputs.ip }} --port-number=${{ inputs.port }} --message="${{ inputs.message }}" --delay=${{ inputs.delay }} --attempts=${{ inputs.attempts }}
+      run: |
+        w4m send --ip-address=${{ inputs.ip }} --port-number=${{ inputs.port }} --message="${{ inputs.message }}" --delay=${{ inputs.delay }} --attempts=${{ inputs.attempts }}
 
     - name: Wait for message
       if: ${{ inputs.command == 'wait' && inputs.use_container == 'false' }}
       shell: ${{ inputs.shell }}
-      run: w4m wait --port-number=${{ inputs.port }} --message="${{ inputs.message }}" --timeout=${{ inputs.timeout }}
+      run: |
+        w4m wait --port-number=${{ inputs.port }} --message="${{ inputs.message }}" --timeout=${{ inputs.timeout }}
 
     - name: Run using Docker container
       if: ${{ inputs.use_container == 'true' }}

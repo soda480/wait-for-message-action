@@ -1,10 +1,14 @@
 #!/bin/sh
-set -x
+# set -x
 run() {
     IMAGE="soda480/wait-for-message:latest"
+
+    echo "pulling Docker image: $IMAGE"
+    docker image pull $IMAGE
+
     echo "running Docker container: $IMAGE"
-    if [ ! -z \"$W4M_PORT\" ]
-    then
+    if [ "$W4M_COMMAND" = "wait" ]; then
+        echo "publish ports: $W4M_PORT"
         docker container run \
             --rm \
             -e http_proxy \
