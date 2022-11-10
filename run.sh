@@ -11,31 +11,17 @@ run() {
         echo "publish ports: $W4M_PORT"
         value=$( docker container run \
             --rm \
-            -e http_proxy \
-            -e https_proxy \
-            -e W4M_COMMAND \
-            -e W4M_IP \
-            -e W4M_PORT \
-            -e W4M_MESSAGE \
-            -e W4M_DELAY \
-            -e W4M_ATTEMPTS \
-            -e W4M_TIMEOUT \
+            --entrypoint= \
             -p $W4M_PORT:$W4M_PORT \
-            "$IMAGE")
+            "$IMAGE" \
+            w4m wait --port-number=$W4M_PORT --message="$W4M_MESSAGE" --timeout=$W4M_TIMEOUT)
         echo "response=$value" >> $GITHUB_OUTPUT   
     else
         docker container run \
             --rm \
-            -e http_proxy \
-            -e https_proxy \
-            -e W4M_COMMAND \
-            -e W4M_IP \
-            -e W4M_PORT \
-            -e W4M_MESSAGE \
-            -e W4M_DELAY \
-            -e W4M_ATTEMPTS \
-            -e W4M_TIMEOUT \
-            "$IMAGE"
+            --entrypoint= \
+            "$IMAGE" \
+            w4m send --ip-address=$W4M_IP --port-number=$W4M_PORT --message="$W4M_MESSAGE" --delay=$W4M_DELAY --attempts=$W4M_ATTEMPTS
     fi
 
     run_exit=$?
