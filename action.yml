@@ -64,7 +64,12 @@ runs:
       id: response_linux
       shell: bash
       run: |
-        value=$( w4m wait --port-number=${{ inputs.port }} --message="${{ inputs.message }}" --timeout=${{ inputs.timeout }} )
+        value=$( 
+          w4m wait \
+            --port-number=${{ inputs.port }} \
+            --message="${{ inputs.message }}" \
+            --timeout=${{ inputs.timeout }}
+        )
         echo "response=$value" >> $GITHUB_OUTPUT
     
     - name: Wait for message for Windows
@@ -72,7 +77,12 @@ runs:
       id: response_windows
       shell: powershell
       run: |
-        $value=( w4m wait --port-number=${{ inputs.port }} --message="${{ inputs.message }}" --timeout=${{ inputs.timeout }} )
+        $value=(
+          w4m wait `
+            --port-number=${{ inputs.port }} `
+            --message="${{ inputs.message }}" `
+            --timeout=${{ inputs.timeout }}
+        )
         Write-Output "response=$value" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
         
     - name: Run using Docker container
